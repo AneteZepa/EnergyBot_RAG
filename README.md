@@ -28,7 +28,7 @@ The system is currently indexed with the following Latvenergo Group data:
 
 ```Bash
 
-git clone https://github.com/your-username/latvenergo-rag-bot.git
+git clone https://github.com/anetezepa/EnergyBot_RAG.git
 ```
 
 2. Environment Setup: Create a .env file to point to your inference server:
