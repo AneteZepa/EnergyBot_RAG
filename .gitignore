@@ -1,0 +1,13 @@
+# Local data and environment
+.venv/
+.env
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# My temporary files
+old/
+
+# Project Specific files; will remove data/chroma_db/ if use lfs
+docs/*.pdf
+data/chroma_db/

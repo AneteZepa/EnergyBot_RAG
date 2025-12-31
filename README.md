@@ -13,7 +13,7 @@ An AI-powered document intelligence system designed to analyze Latvenergo’s fi
 3. **Models**: LLM: Llama 3.1 (via Ollama)
 4. **Embeddings**: BGE-Small-v1.5 (Local)
 5. **OCR/Parsing**: Docling (Hugging Face / IBM)
-6. **DevOps**: Docker, Python 3.10+, Git
+6. **DevOps**: Docker, Python 3.10+, Git, uv
 
 ## System Architecture
 
