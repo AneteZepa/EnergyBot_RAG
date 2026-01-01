@@ -38,48 +38,45 @@ if prompt := st.chat_input("Jautājiet par 2025. gada mērķiem, peļņu vai seg
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        # Containers for layout
         thought_container = st.container()
         answer_placeholder = st.empty()
         
-        # We use streaming for better UX
+        # 1. STREAMING PHASE (Better UX)
         response = st.session_state.query_engine.query(prompt)
-        
-        full_response = ""
-        # Handle streaming output
+        full_raw_text = ""
         for chunk in response.response_gen:
-            full_response += chunk
-            answer_placeholder.markdown(full_response + "▌")
+            full_raw_text += chunk
+            # Show the user the raw stream so they see it's "thinking"
+            answer_placeholder.markdown(full_raw_text + "▌")
         
-        # 4. POST-PROCESSING: Split Thinking from Answer
-        final_answer = ""
-        if "<think>" in full_response and "</think>" in full_response:
-            parts = full_response.split("</think>")
-            # Extract thinking and clean up the tags
-            thought_process = parts[0].replace("<think>", "").strip()
-            final_answer = parts[1].strip()
+        # 2. POST-PROCESSING PHASE (Cleanup)
+        # Identify the thinking block regardless of tag name
+        think_match = re.search(r"<(think|reasoning|tags)>(.*?)</\1>", full_raw_text, re.DOTALL | re.IGNORECASE)
+        
+        if think_match:
+            thought_process = think_match.group(2).strip()
+            # Remove all tags and thinking content from the final visible answer
+            clean_answer = re.sub(r"<(think|reasoning|tags)>.*?</\1>", "", full_raw_text, flags=re.DOTALL | re.IGNORECASE).strip()
             
-            with thought_container.expander("Analītiskais pamatojums (Reasoning Chain)", expanded=True):
+            # Update UI with the clean structure
+            with thought_container.expander("🔍 Analītiskais pamatojums (Reasoning Chain)", expanded=True):
                 st.info(thought_process)
-            
-            # Display the clean final answer
-            answer_placeholder.success(final_answer)
+            answer_placeholder.success(clean_answer)
         else:
-            final_answer = full_response
-            answer_placeholder.markdown(final_answer)
+            clean_answer = full_raw_text.strip()
+            answer_placeholder.markdown(clean_answer)
         
-        # 5. SOURCE AUDIT (Using Metadata from Docling)
-        with st.expander("Izmantotie datu avoti un citāti (Sources)"):
+        # 3. SOURCE AUDIT (Always at the bottom)
+        with st.expander("📚 Izmantotie datu avoti un citāti"):
             for i, node in enumerate(response.source_nodes):
-                # Safely extract metadata
                 meta = node.node.metadata
                 f_name = meta.get("file_name", "Dokuments")
                 page_no = meta.get("page_no", "N/A")
                 score = f"{node.score:.3f}" if node.score else "N/A"
                 
                 st.markdown(f"**Avots {i+1}:** `{f_name}` | **Lpp:** `{page_no}` | **Score:** `{score}`")
-                st.caption(node.node.get_content()[:600] + "...")
+                st.caption(node.node.get_content()[:500] + "...")
                 st.divider()
 
-    # Save to history
-    st.session_state.messages.append({"role": "assistant", "content": final_answer})
+    # Save ONLY the clean answer to chat history
+    st.session_state.messages.append({"role": "assistant", "content": clean_answer})

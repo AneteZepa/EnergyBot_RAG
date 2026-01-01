@@ -1,0 +1,92 @@
+Query,Response,Top_Score
+Kāds bija Latvenergo koncerna EBITDA 2025. gada 9 mēnešos?,"Latvenergo koncerna EBITDA 2025. gada 9 mēnešos bija 350,2 milj.EUR.
+
+<reasoning>
+1. No dokumenta ""1_Latvenergo_9M_2025_LAT.pdf"" izgūstam informāciju par EBITDA rādītāju.
+2. Rakstīts: ""EBITDA, 9 mēn. 2025 = 350,2.""
+3. Vienība ir milj.EUR, kā norādīts iepriekšējās rindās.
+4. Tātad atbilde ir precīza un atbilst pieprasījumam.
+</reasoning>",10.0
+What was the total electricity generation in 9M 2025?,"The total electricity generation in the first 9 months of 2025 was **3,512 GWh**.
+
+**Reasoning:**  
+The query asks for the total electricity generation in the first 9 months of 2025. According to the provided context, under the heading ""Ražošana un tirdzniecība"" (Production and Trade), it is stated that:
+
+> ""Latvenergo koncerns ir viens no lielākajiem elektroenerģijas ražotājiem Baltijā. Koncerna kopējais saražotās elektroenerģijas apjoms 2025. gada 9 mēnešos veidoja 24 % no kopējā Baltijā izstrādātā elektroenerģijas apjoma, un no tā 69 % elektroenerģijas saražot s no atjaunīgajiem energoresursiem (2024. gada 9 mēnešos -69 %). Latvenergo savās elektrostacijās ir saražojis 3 512 GWh elektroenerģijas un 984 GWh siltumenerģijas .""
+
+This sentence clearly indicates that the total electricity generation in 9 months of 2025 was **3,512 GWh**.
+
+Additionally, in the section ""Elektroenerģijas izstrāde, Darbības rādītāji = GWh"", it is also explicitly mentioned:
+
+> ""Elektroenerģijas izstrāde, 9 mēn. 2025 = 3 512""
+
+Thus, the answer is confirmed to be **3,512 GWh**.
+
+**Answer:** 3,512 GWh",10.0
+Who is the current CEO of Enefit (Estonia)?,Empty Response,0.0
+Kā zemā pietece Daugavā ietekmēja 2025. gada peļņas rādītājus?,"2025. gada zemā pietece Daugavā ietekmēja Latvenergo koncerna peļņas rādītājus, jo tā samazināja elektroenerģijas ražošanu, kas, savukārt, ietekmēja gan ieņēmumus, gan EBITDA. Konkrēti, 2025. gada 9 mēnešos Daugavas HES izstrādāts par 20 % mazāk elektroenerģijas nekā 2024. gadā, sasniedzot 2 248 GWh. Tā kā pietece bija 9 % zem vidējās ilggadējās, tas nozīmēja, ka ražošana bija zemāka nekā parasti, un tādējādi samazinājās arī pārdošanas ienākumi. Šis samazinājums tieši ietekmēja koncerna finanšu rezultātus, kā norādīts dokumentā — koncerna EBITDA samazinājās par 28 % salīdzinājumā ar 2024. gada 9 mēnešiem, sasniedzot 350,2 miljonus EUR, bet peļņa samazinājās līdz 163,9 miljoniem EUR.
+
+[EBITDA: 350,2 miljoni EUR; Peļņa: 163,9 miljoni EUR; Ražošanas samazinājums: 20 %; Pietece: 9 % zem vidējās ilggadējās]",10.0
+Calculate the EBITDA margin for 9M 2025 based on revenue and EBITDA values in the report.,"To calculate the EBITDA margin for the 9M 2025, we use the formula:
+
+$$
+\text{EBITDA Margin} = \frac{\text{EBITDA}}{\text{Revenue}} \times 100\%
+$$
+
+From the provided data:
+- Revenue (Ieņēmumi) for 9M 2025 = 1,160.2 milj. EUR
+- EBITDA for 9M 2025 = 350.2 milj. EUR
+
+$$
+\text{EBITDA Margin} = \frac{350.2}{1,160.2} \times 100\% = 30.18\%
+$$
+
+**Answer:** The EBITDA margin for 9M 2025 is **30.18%**.
+
+<tags>
+The calculation is based on the EBITDA and revenue values provided in the report for the 9-month period ending in 2025. The margin is computed as the ratio of EBITDA to revenue, expressed as a percentage.
+</tags>",10.0
+Analizē ražošanas un tirdzniecības segmenta ieņēmumu struktūru. Cik liela daļa ir siltumenerģija?,"Lai analizētu **ražošanas un tirdzniecības segmenta ieņēmumu struktūru** un noteiktu, **cik liela daļa no ieņēmumiem ir siltumenerģija**, jāizmanto informācija no dokumenta, kas attiecas uz **2025. gada 9.mēneša dati**.
+
+### 1. **Iegūtie dati par ieņēmumiem (2025. gada 9.mēneša dati):**
+
+#### **Kopējie ieņēmumi no līgumiem ar klientiem (2025. gada 9.mēneša dati):**
+- **Kopā ieņēmumi no līgumiem ar klientiem (Latvenergo koncerns):**  
+  1 303 910 EUR
+
+#### **Ieņēmumi no dažādiem produktiem/pakalpojumiem (2025. gada 9.mēneša dati):**
+- **Elektroenerģijas pārdošana (mazumtirdzniecībā):**  
+  4 583 GWh (nav norādīts naudas summas, bet šis ir daudzums, nevis ieņēmumi)
+- **Dabasgāzes pārdošana (mazumtirdzniecībā):**  
+  1 055 GWh (tāpat daudzums)
+- **Siltumenerģijas pārdošana:**  
+  984 GWh (tāpat daudzums)
+
+#### **Izvērtējot ieņēmumu struktūru:**
+Lai noteiktu, **cik liela daļa no kopējiem ieņēmumiem ir siltumenerģija**, mums ir nepieciešams zināt, **cik lieli ir ieņēmumi no siltumenerģijas**, bet šajā dokumentā tie nav norādīti tieši.
+
+Tomēr, ja izmantojam **siltumenerģijas izstrādes daudzumu** kā atsauces punktu, un pieņemam, ka **siltumenerģijas ieņēmumi ir proporcionāli izstrādes daudzumam**, mēs varam veikt aptuvenu aprēķinu.
+
+### 2. **Aprēķins:**
+
+#### **Siltumenerģijas izstrāde (2025. gada 9.mēneša dati):**
+- 984 GWh
+
+#### **Elektroenerģijas izstrāde (2025. gada 9.mēneša dati):**
+- 3 512 GWh
+
+#### **Kopējā izstrāde (2025. gada 9.mēneša dati):**
+- 3 512 + 984 = 4 496 GWh
+
+#### **Siltumenerģijas daļa no kopējās izstrādes:**
+$$
+\frac{984}{4496} \approx 0,219 \text{ vai } 21,9\%
+$$
+
+### 3. **Izvērtējums:**
+Ja pieņemam, ka **siltumenerģijas ieņēmumi ir aptuveni proporcionāli izstrādes daudzumam**, tad **siltumenerģijas daļa no kopējiem ieņēmumiem** būtu aptuveni **21,9 %**.
+
+### 4. **Atbilde:**
+**Siltumenerģijas daļa no ražošanas un tirdzniecības segmenta ieņēmumiem 2025. gadā (9.mēnesis) ir aptuveni 21,9 %.**
+
+Ja būtu pieejami tieši ieņēmumi no siltumenerģijas, aprēķins būtu precīzāks. Tomēr, pamatojoties uz pieejamo informāciju, šis ir visprecīzākais novērtējums.",10.0

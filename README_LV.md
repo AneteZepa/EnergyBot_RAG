@@ -16,7 +16,7 @@ MI darbinata dokumentu analizes sistema, kas izstradata Latvenergo finansu parsk
 * **Modeli:** * **LLM:** Llama 3.1 (caur Ollama)
     * **Iegulumi (Embeddings):** BGE-Small-v1.5 (Lokali)
     * **OCR/Parsesana:** Docling (Hugging Face / IBM)
-* **DevOps:** Docker, Python 3.10+, Git
+* **DevOps:** Docker, Python 3.10+, Git, uv
 
 ## Sistēmas arhitektura
 

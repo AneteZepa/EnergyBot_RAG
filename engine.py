@@ -1,14 +1,14 @@
 import os
+import re
+import json
 import logging
-import json 
 from dotenv import load_dotenv
-from llama_index.core import VectorStoreIndex, StorageContext, Settings, PromptTemplate
+from llama_index.core import VectorStoreIndex, StorageContext, Settings, PromptTemplate, SimpleDirectoryReader
 from llama_index.readers.docling import DoclingReader
 from llama_index.node_parser.docling import DoclingNodeParser
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.llms.ollama import Ollama
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.core import SimpleDirectoryReader
 from llama_index.core.indices.query.query_transform import HyDEQueryTransform
 from llama_index.core.query_engine import TransformQueryEngine
 from llama_index.core.postprocessor import LLMRerank
@@ -29,7 +29,8 @@ CHROMA_PATH = "./data/chroma_db"
 # 1. Force the Embedding model to stay on the Mac CPU to save Linux GPU VRAM
 Settings.embed_model = HuggingFaceEmbedding(
     model_name="BAAI/bge-m3",
-    device="cpu" # Forces Mac to use its own RAM, leaving Linux VRAM for DeepSeek
+    device="cpu",
+    embed_batch_size=4 # Forces Mac to use its own RAM and mps, leaving Linux VRAM for DeepSeek
 )
 
 # 2. Configure Ollama to handle the context more efficiently
@@ -66,25 +67,28 @@ def clean_metadata(metadata: dict) -> dict:
     """
     allowed_types = (str, int, float, bool)
     clean_dict = {}
+    
+    # Explicitly extract provenance
+    page = metadata.get("page_no") or metadata.get("page")
+    clean_dict["page_no"] = int(page) if page else "N/A"
+    clean_dict["file_name"] = metadata.get("file_name", "Unknown")
+
     for key, value in metadata.items():
+        if key in clean_dict: continue
         if isinstance(value, allowed_types):
             clean_dict[key] = value
         elif value is None:
             clean_dict[key] = ""
         else:
-            # Convert complex types (like doc_items) to string or drop them
-            # For this project, dropping 'doc_items' is safest as it's redundant
-            if key == "doc_items":
-                continue 
+            if key == "doc_items": continue
             clean_dict[key] = str(value)
     return clean_dict
 
 
 def initialize_index():
     db = chromadb.PersistentClient(path=CHROMA_PATH)
-    # Using a fresh collection name to ensure clean schema
-    chroma_collection = db.get_or_create_collection("latvenergo_v4_stable")
-    
+
+    chroma_collection = db.get_or_create_collection("latvenergo_v6_final")
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
