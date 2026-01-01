@@ -1,6 +1,4 @@
 import os
-import re
-import json
 import logging
 from dotenv import load_dotenv
 from llama_index.core import VectorStoreIndex, StorageContext, Settings, PromptTemplate, SimpleDirectoryReader
@@ -47,29 +45,26 @@ Settings.llm = Ollama(
 
 # 3. Custom System Prompt for RAG in Latvian and English
 SYSTEM_PROMPT = (
-    "You are the Latvenergo Strategic Intelligence Bot. You are a professional energy market analyst.\n"
-    "Your goal is to provide precise, data-driven answers based ONLY on the provided context.\n"
-    "1. If the answer involves numbers, specify the unit (EUR, GWh, etc.).\n"
-    "2. If the data is missing, say you don't have information.\n"
-    "3. Respond in the same language as the user (Latvian or English).\n"
-    "4. Always output your reasoning process inside <think></think> tags.\n"
-    "---------------------\n"
-    "CONTEXT INFORMATION:\n{context_str}\n"
-    "---------------------\n"
-    "QUERY: {query_str}\n"
-    "ANSWER:"
+    "You are a Latvenergo Strategic Analyst. Answer using ONLY the provided context.\n"
+    "If the information is not in the context, say: 'I cannot find information about this in the provided Latvenergo reports.'\n"
+    "Respond in the same language as the question.\n"
+    "Context:\n{context_str}\n"
+    "Query: {query_str}\n"
+    "Answer (Provide logic inside <think> tags):"
 )
 
 def clean_metadata(metadata: dict) -> dict:
-    """
-    ChromaDB only supports flat metadata (str, int, float, bool).
-    This function removes or converts nested structures (lists/dicts).
-    """
+    """Enhanced metadata extraction for Docling structures."""
     allowed_types = (str, int, float, bool)
     clean_dict = {}
     
-    # Explicitly extract provenance
-    page = metadata.get("page_no") or metadata.get("page")
+    # Docling stores page info in 'page_no' or 'dl_meta/page_no'
+    page = metadata.get("page_no") or metadata.get("dl_meta", {}).get("page_no")
+    
+    # If it's a list (some parsers do this), take the first element
+    if isinstance(page, list) and len(page) > 0:
+        page = page[0]
+        
     clean_dict["page_no"] = int(page) if page else "N/A"
     clean_dict["file_name"] = metadata.get("file_name", "Unknown")
 
@@ -77,10 +72,8 @@ def clean_metadata(metadata: dict) -> dict:
         if key in clean_dict: continue
         if isinstance(value, allowed_types):
             clean_dict[key] = value
-        elif value is None:
-            clean_dict[key] = ""
         else:
-            if key == "doc_items": continue
+            # Flatten everything else to string for ChromaDB
             clean_dict[key] = str(value)
     return clean_dict
 
@@ -102,7 +95,11 @@ def initialize_index():
         documents = dir_reader.load_data()
         
         # 2. Parse into nodes
-        node_parser = DoclingNodeParser()
+        node_parser = DoclingNodeParser(
+            # These settings help keep related strategic paragraphs together
+            chunk_size=1024, 
+            chunk_overlap=200 
+        )
         nodes = node_parser.get_nodes_from_documents(documents)
         
         # 3. CLEAN METADATA (The Fix)
