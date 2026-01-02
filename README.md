@@ -31,11 +31,11 @@ git clone [https://github.com/anetezepa/EnergyBot_RAG.git](https://github.com/an
 cd EnergyBot_RAG
 ```
 
-# Create virtual environment and sync dependencies
+Create virtual environment and sync dependencies
 ```bash
 uv sync
 ```
-# Activate the environment
+Activate the environment
 ```bash
 source .venv/bin/activate
 ```
@@ -46,10 +46,20 @@ Create a .env file in the root directory:
 OLLAMA_BASE_URL=http://your-linux-ip:11434
 DATA_PATH=./docs
 ```
-4. Running the Application
+### 4. Running the Application
 
 ```bash
 uv run streamlit run main_ui.py
+```
+
+### 4. Running tests
+
+```bash
+uv run python test_rag_cases.py
+```
+or
+```bash
+uv run python test_rag_connection.py
 ```
 
 ## Data & Benchmarking

@@ -4,89 +4,121 @@ from engine import get_query_engine
 
 st.set_page_config(page_title="Latvenergo AI Insights", layout="wide", page_icon="⚡")
 
-# Professional Styling
+# Professional Styling to match your screenshot preference
 st.markdown("""
     <style>
-    .stChatMessage { border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; }
-    .source-box { background-color: #f0f2f6; padding: 10px; border-radius: 5px; font-size: 0.85rem; }
-    .think-box { font-style: italic; color: #555; border-left: 3px solid #ccc; padding-left: 10px; margin-bottom: 10px; }
+    .stChatMessage { background-color: white; border-radius: 12px; border: 1px solid #e0e0e0; margin-bottom: 10px; }
+    .stExpander { border: none !important; box-shadow: none !important; background-color: #f8f9fa; border-radius: 8px; }
+    div[data-testid="stExpanderDetails"] { padding-top: 5px; padding-bottom: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
 st.title("⚡ Latvenergo Stratēģiskās Izpētes Bots")
-st.sidebar.button("Clear Conversation", on_click=lambda: st.session_state.clear())
+st.caption("AI-powered analysis of 9M 2025 Financials & Strategy")
 
+# 1. INITIALIZE ENGINE
 if "query_engine" not in st.session_state:
-    with st.spinner("Initializing Analytics Engine..."):
+    with st.spinner("Inicializēju RAG..."):
         st.session_state.query_engine = get_query_engine()
 
+# 2. CHAT HISTORY
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display History (Cleanly)
+# Display previous messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-        if "sources" in message:
-            with st.expander("Arhivētie datu avoti"):
-                st.json(message["sources"])
+        # Restore the 1-2-3 layout for history
+        if message["role"] == "assistant":
+            # 1. Thinking
+            if "thought" in message and message["thought"]:
+                with st.expander("Domāšanas gaita (Reasoning)", expanded=False):
+                    st.info(message["thought"])
+            
+            # 2. Sources
+            if "sources" in message and message["sources"]:
+                with st.expander("Izmantotie datu avoti (Sources)", expanded=False):
+                    for src in message["sources"]:
+                        st.markdown(f"**{src['Fails']} (Lpp. {src['Lpp']})** - Score: {src['Score']}")
+                        st.caption(src['Text'])
+                        st.divider()
+            
+            # 3. Answer
+            st.markdown(message["content"])
+        else:
+            st.markdown(message["content"])
 
-# User Input
-if prompt := st.chat_input("Jautājiet par Latvenergo..."):
+# 3. CHAT INPUT
+if prompt := st.chat_input("Jautājiet par Latvenergo 2025. gada mērķiem un sasniegumiem (LV or Eng)..."):
+    # Add User Message
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Generate Assistant Response
     with st.chat_message("assistant"):
-        # We separate the thinking expander from the answer container
-        thought_placeholder = st.container()
-        answer_placeholder = st.empty()
+        # Create a placeholder for the streaming text
+        stream_placeholder = st.empty()
         
+        # Run Query
         response = st.session_state.query_engine.query(prompt)
         full_raw_text = ""
         
-        # 1. STREAMING
+        # STREAMING PHASE
         for chunk in response.response_gen:
             full_raw_text += chunk
-            answer_placeholder.markdown(full_raw_text + "▌")
+            stream_placeholder.markdown(full_raw_text + "▌")
         
-        # 2. PROCESSING
-        if not full_raw_text.strip():
-            clean_answer = "I cannot find information about this in the provided Latvenergo reports."
-            answer_placeholder.error(clean_answer)
-        else:
-            # Extract thinking
-            think_match = re.search(r"<(think|reasoning|tags)>(.*?)</\1>", full_raw_text, re.DOTALL | re.IGNORECASE)
-            if think_match:
-                thought_process = think_match.group(2).strip()
-                clean_answer = re.sub(r"<(think|reasoning|tags)>.*?</\1>", "", full_raw_text, flags=re.DOTALL | re.IGNORECASE).strip()
-                with thought_placeholder.expander("Analītiskais pamatojums", expanded=False):
-                    st.markdown(f"<div class='think-box'>{thought_process}</div>", unsafe_allow_html=True)
-                answer_placeholder.success(clean_answer)
-            else:
-                clean_answer = full_raw_text.strip()
-                answer_placeholder.markdown(clean_answer)
+        # CLEANUP PHASE (The magic happens here)
+        stream_placeholder.empty() # Clear the raw stream to render the nice layout
+        
+        # A. Logic Extraction (Supports <think>, <logic>, <thinking>)
+        think_match = re.search(r"<(think|thinking|logic|reasoning)>(.*?)</\1>", full_raw_text, re.DOTALL | re.IGNORECASE)
+        thought_process = ""
+        clean_answer = full_raw_text
+        
+        if think_match:
+            thought_process = think_match.group(2).strip()
+            # Remove the tag from the answer
+            clean_answer = re.sub(r"<(think|thinking|logic|reasoning)>.*?</\1>", "", full_raw_text, flags=re.DOTALL | re.IGNORECASE).strip()
+        
+        # B. Handle Empty/No Info Responses
+        # If the answer is extremely short or looks like an empty string, provide a default
+        if len(clean_answer) < 5:
+            clean_answer = "Diemžēl dokumentos neatradu informāciju par šo jautājumu. Sorry, I did not find the answer in the avialable documents."
 
-        # 3. METADATA / SOURCES
-        sources_to_save = []
+        # C. RENDER FINAL LAYOUT (1 -> 2 -> 3)
+        
+        # 1. Thinking (Collapsed)
+        if thought_process:
+            with st.expander("Domāšanas gaita (Reasoning)", expanded=False):
+                st.info(thought_process)
+
+        # 2. Sources (Collapsed)
+        source_data = []
         if response.source_nodes:
-            with st.expander("Izmantotie datu avoti un citāti"):
+            with st.expander("Izmantotie datu avoti (Sources)", expanded=False):
                 for i, node in enumerate(response.source_nodes):
                     meta = node.node.metadata
-                    source_info = {
-                        "Avots": i+1,
-                        "Fails": meta.get("file_name"),
-                        "Lpp": meta.get("page_no"),
-                        "Score": round(node.score, 3) if node.score else "N/A"
+                    src_entry = {
+                        "Fails": meta.get("file_name", "Unknown"),
+                        "Lpp": meta.get("page_no", "N/A"),
+                        "Score": f"{node.score:.3f}" if node.score else "N/A",
+                        "Text": node.node.get_content()[:300] + "..."
                     }
-                    sources_to_save.append(source_info)
-                    st.markdown(f"**{source_info['Fails']} (Lpp. {source_info['Lpp']})**")
-                    st.caption(node.node.get_content()[:300] + "...")
+                    source_data.append(src_entry)
+                    
+                    st.markdown(f"**{src_entry['Fails']} (Lpp. {src_entry['Lpp']})** - Score: {src_entry['Score']}")
+                    st.caption(src_entry['Text'])
                     st.divider()
 
-    # Save to history including the cleaned answer and the source list
+        # 3. Final Answer (Visible)
+        st.markdown(clean_answer)
+
+    # Save structured data to history
     st.session_state.messages.append({
-        "role": "assistant", 
-        "content": clean_answer, 
-        "sources": sources_to_save
+        "role": "assistant",
+        "content": clean_answer,
+        "thought": thought_process,
+        "sources": source_data
     })

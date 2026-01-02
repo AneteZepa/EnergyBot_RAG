@@ -43,16 +43,6 @@ Settings.llm = Ollama(
     }
 )
 
-# 3. Custom System Prompt for RAG in Latvian and English
-SYSTEM_PROMPT = (
-    "You are a Latvenergo Strategic Analyst. Answer using ONLY the provided context.\n"
-    "If the information is not in the context, say: 'I cannot find information about this in the provided Latvenergo reports.'\n"
-    "Respond in the same language as the question.\n"
-    "Context:\n{context_str}\n"
-    "Query: {query_str}\n"
-    "Answer (Provide logic inside <think> tags):"
-)
-
 def clean_metadata(metadata: dict) -> dict:
     """Enhanced metadata extraction for Docling structures."""
     allowed_types = (str, int, float, bool)
@@ -135,10 +125,22 @@ def get_query_engine():
         streaming=True
     )
     
-    # Update the prompt template
-    base_engine.update_prompts(
-        {"response_synthesizer:text_qa_template": PromptTemplate(SYSTEM_PROMPT)}
+    # SYSTEM PROMPT: Enforce <thinking> tags and polite refusals
+    qa_prompt = PromptTemplate(
+        "You are a Latvenergo Strategic Analyst. Answer using ONLY the provided context.\n"
+        "1. If the information is not in the context, output ONLY: 'I cannot find information about this in the provided Latvenergo reports.'\n"
+        "2. You MUST enclose your internal reasoning inside <thinking> tags.\n"
+        "3. Respond in the same language as the question.\n"
+        "---------------------\n"
+        "Context:\n{context_str}\n"
+        "---------------------\n"
+        "Query: {query_str}\n"
+        "Answer:"
     )
+    
+    base_engine.update_prompts({"response_synthesizer:text_qa_template": qa_prompt})
+    
+    return TransformQueryEngine(base_engine, hyde)
     
     # Wrap it in HyDE
     advanced_engine = TransformQueryEngine(base_engine, hyde)
