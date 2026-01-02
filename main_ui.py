@@ -84,9 +84,14 @@ if prompt := st.chat_input("Jautājiet par Latvenergo 2025. gada mērķiem un sa
         
         # B. Handle Empty/No Info Responses
         # If the answer is extremely short or looks like an empty string, provide a default
-        if len(clean_answer) < 5:
-            clean_answer = "Diemžēl dokumentos neatradu informāciju par šo jautājumu. Sorry, I did not find the answer in the avialable documents."
-
+        is_empty = len(clean_answer.strip()) < 5
+        is_refusal = "cannot find information" in clean_answer.lower()
+        
+        if is_empty or (is_refusal and not thought_process):
+            clean_answer = "Diemžēl dokumentos neatradu informāciju par šo jautājumu. (No info found in docs)"
+            # Force update the placeholder to show the error
+            answer_placeholder.error(clean_answer)
+        
         # C. RENDER FINAL LAYOUT (1 -> 2 -> 3)
         
         # 1. Thinking (Collapsed)

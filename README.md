@@ -52,7 +52,17 @@ DATA_PATH=./docs
 uv run streamlit run main_ui.py
 ```
 
-### 4. Running tests
+### 5. Runnning the Application using Docker
+```bash
+# Build the image
+docker build -t latvenergo-bot .
+
+# Run it (Connects to your host network to reach Ollama)
+# On Mac/Linux, adding --network="host" is the easiest way to reach localhost:11434
+docker run --network="host" latvenergo-bot
+```
+
+### 6. Running tests
 
 ```bash
 uv run python test_rag_cases.py
